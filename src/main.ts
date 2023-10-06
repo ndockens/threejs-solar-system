@@ -123,11 +123,10 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-const clock = new THREE.Clock();
+let planetMeshes: any[] = [];
 
 const createPlanets = () => {
-  const planetMeshes = planets.map(planet => createPlanet(planet));
-  planetMeshes.forEach(planetMesh => scene.add(planetMesh));
+  planetMeshes = planets.map(planet => createPlanet(planet));
 };
 
 const createPlanet = (planet: any) => {
@@ -145,24 +144,28 @@ const createPlanet = (planet: any) => {
   return planetMesh;
 };
 
+const addPlanetsToScene = () => {
+  planetMeshes.forEach(planetMesh => scene.add(planetMesh));
+};
+
 const renderloop = () => {
-  const elapsedTime = clock.getElapsedTime();
 
-  // planetMeshes.forEach(planetMesh => {
-  //   const planet = planets.find(x => x.name === planetMesh)
-  //   planetMesh.rotation.y += 0.01;
-  //   planetMesh.position.x = Math.sin(elapsedTime) * 10;
-  //   planetMesh.position.z = Math.cos(elapsedTime) * 10;
-  // });
+  planetMeshes.forEach((planetMesh, planetIndex) => {
+    const planet = planets[planetIndex];
+    planetMesh.rotation.y += planet.speed;
+    planetMesh.position.x = Math.sin(planetMesh.rotation.y) * planet.distance;
+    planetMesh.position.z = Math.cos(planetMesh.rotation.y) * planet.distance;
 
-  // earth.rotation.y += 0.01;
-  // earth.position.x = Math.sin(elapsedTime) * 10;
-  // earth.position.z = Math.cos(elapsedTime) * 10;
+    planetMesh.children?.forEach((moonMesh: any, moonIndex: any) => {
+      const moon = planet.moons?.[moonIndex];
 
-
-  // moon.rotation.y += 0.01;
-  // moon.position.x = Math.sin(elapsedTime) * 2;
-  // moon.position.z = Math.cos(elapsedTime) * 2;
+      if (moon !== undefined) {
+        moonMesh.rotation.y += moon.speed;
+        moonMesh.position.x = Math.sin(moonMesh.rotation.y) * moon.distance;
+        moonMesh.position.z = Math.cos(moonMesh.rotation.y) * moon.distance;
+      }
+    });
+  });
 
   controls.update();
   renderer.render(scene, camera);
@@ -170,4 +173,5 @@ const renderloop = () => {
 };
 
 createPlanets();
+addPlanetsToScene();
 renderloop();
