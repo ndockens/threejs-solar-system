@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { Pane } from 'tweakpane';
 
-const pane = new Pane();
 const scene = new THREE.Scene();
 const textureLoader = new THREE.TextureLoader();
+const cubeTextureLoader = new THREE.CubeTextureLoader();
+cubeTextureLoader.setPath('/textures/cubeMap/');
 
 const sunTexture = textureLoader.load("/textures/2k_sun.jpg");
 const mercuryTexture = textureLoader.load("/textures/2k_mercury.jpg");
@@ -12,6 +12,18 @@ const venusTexture = textureLoader.load("/textures/2k_venus_surface.jpg");
 const earthTexture = textureLoader.load("/textures/2k_earth_daymap.jpg");
 const marsTexture = textureLoader.load("/textures/2k_mars.jpg");
 const moonTexture = textureLoader.load("/textures/2k_moon.jpg");
+
+const backgroundCubeMap = cubeTextureLoader.load(
+  [
+    'px.png',
+    'nx.png',
+    'py.png',
+    'ny.png',
+    'pz.png',
+    'nz.png'
+  ]);
+
+scene.background = backgroundCubeMap;
 
 const sunMaterial = new THREE.MeshBasicMaterial({
   map: sunTexture,
@@ -96,33 +108,6 @@ const planets = [
   },
 ];
 
-const camera = new THREE.PerspectiveCamera(
-  35,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  10000
-);
-camera.position.x = 50;
-
-const canvas = document.querySelector('canvas.threejs') as HTMLCanvasElement;
-
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.shadowMap.enabled = true;
-
-const controls = new OrbitControls(camera, canvas);
-controls.enableDamping = true;
-
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-scene.add(ambientLight);
-
-window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
 let planetMeshes: any[] = [];
 
 const createPlanets = () => {
@@ -148,6 +133,35 @@ const addPlanetsToScene = () => {
   planetMeshes.forEach(planetMesh => scene.add(planetMesh));
 };
 
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+scene.add(ambientLight);
+
+const pointLight = new THREE.PointLight(0xffffff, 2);
+scene.add(pointLight);
+
+const camera = new THREE.PerspectiveCamera(
+  35,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  400
+);
+camera.position.z = 100;
+camera.position.y = 5;
+
+const canvas = document.querySelector('canvas.threejs') as HTMLCanvasElement;
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
 const renderloop = () => {
 
   planetMeshes.forEach((planetMesh, planetIndex) => {
@@ -156,7 +170,7 @@ const renderloop = () => {
     planetMesh.position.x = Math.sin(planetMesh.rotation.y) * planet.distance;
     planetMesh.position.z = Math.cos(planetMesh.rotation.y) * planet.distance;
 
-    planetMesh.children?.forEach((moonMesh: any, moonIndex: any) => {
+    planetMesh.children.forEach((moonMesh: any, moonIndex: any) => {
       const moon = planet.moons?.[moonIndex];
 
       if (moon !== undefined) {
