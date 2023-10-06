@@ -125,10 +125,9 @@ window.addEventListener("resize", () => {
 
 const clock = new THREE.Clock();
 
-let planetMeshes: any[] = [];
-
-const createPlanetMeshes = () => {
-  planetMeshes = planets.map(planet => createPlanet(planet));
+const createPlanets = () => {
+  const planetMeshes = planets.map(planet => createPlanet(planet));
+  planetMeshes.forEach(planetMesh => scene.add(planetMesh));
 };
 
 const createPlanet = (planet: any) => {
@@ -144,10 +143,6 @@ const createPlanet = (planet: any) => {
   }
 
   return planetMesh;
-};
-
-const addPlanetMeshesToScene = () => {
-  planetMeshes.forEach(planetMesh => scene.add(planetMesh));
 };
 
 const renderloop = () => {
@@ -174,6 +169,5 @@ const renderloop = () => {
   window.requestAnimationFrame(renderloop);
 };
 
-createPlanetMeshes();
-addPlanetMeshesToScene();
+createPlanets();
 renderloop();
