@@ -30,10 +30,15 @@ const moonMaterial = new THREE.MeshStandardMaterial({
 
 const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
 
-const sun = new THREE.Mesh(sphereGeometry, sunMaterial);
-sun.scale.setScalar(5);
-
 const planets = [
+  {
+    name: "Sun",
+    radius: 5,
+    distance: 0,
+    speed: 0,
+    material: sunMaterial,
+    moons: [],
+  },
   {
     name: "Mercury",
     radius: 0.5,
@@ -113,7 +118,7 @@ const createPlanet = (planet: any) => {
   return planetMesh;
 };
 
-const animatePlanets = () => {
+const animateAll = () => {
   planetMeshes.forEach((planetMesh, planetIndex) => {
     const planet = planets[planetIndex];
     planetMesh.rotation.y += planet.speed;
@@ -132,4 +137,4 @@ const animatePlanets = () => {
   });
 };
 
-export { sun, planets, createPlanets, animatePlanets };
+export { planets, createPlanets, animateAll };
