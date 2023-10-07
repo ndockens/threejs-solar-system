@@ -11,8 +11,8 @@ scene.background = Background.backgroundCubeMap;
 
 scene.add(PlanetaryObjects.sun);
 
-let planetMeshes = PlanetaryObjects.createPlanets();
-scene.add(...planetMeshes);
+let planets = PlanetaryObjects.createPlanets();
+scene.add(...planets);
 
 scene.add(Lights.ambientLight);
 scene.add(Lights.pointLight);
@@ -38,24 +38,7 @@ const addWindowResizeListener = () => {
 };
 
 const renderloop = () => {
-
-  planetMeshes.forEach((planetMesh, planetIndex) => {
-    const planet = PlanetaryObjects.planets[planetIndex];
-    planetMesh.rotation.y += planet.speed;
-    planetMesh.position.x = Math.sin(planetMesh.rotation.y) * planet.distance;
-    planetMesh.position.z = Math.cos(planetMesh.rotation.y) * planet.distance;
-
-    planetMesh.children.forEach((moonMesh: any, moonIndex: any) => {
-      const moon = planet.moons?.[moonIndex];
-
-      if (moon !== undefined) {
-        moonMesh.rotation.y += moon.speed;
-        moonMesh.position.x = Math.sin(moonMesh.rotation.y) * moon.distance;
-        moonMesh.position.z = Math.cos(moonMesh.rotation.y) * moon.distance;
-      }
-    });
-  });
-
+  PlanetaryObjects.animatePlanets();
   controls.update();
   renderer.render(scene, camera);
   window.requestAnimationFrame(renderloop);

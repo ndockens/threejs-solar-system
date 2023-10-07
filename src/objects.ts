@@ -91,8 +91,11 @@ const planets = [
   },
 ];
 
+let planetMeshes: any[] = [];
+
 const createPlanets = () => {
-  return planets.map(planet => createPlanet(planet));
+  planetMeshes = planets.map(planet => createPlanet(planet));
+  return planetMeshes;
 };
 
 const createPlanet = (planet: any) => {
@@ -110,4 +113,23 @@ const createPlanet = (planet: any) => {
   return planetMesh;
 };
 
-export { sun, planets, createPlanets };
+const animatePlanets = () => {
+  planetMeshes.forEach((planetMesh, planetIndex) => {
+    const planet = planets[planetIndex];
+    planetMesh.rotation.y += planet.speed;
+    planetMesh.position.x = Math.sin(planetMesh.rotation.y) * planet.distance;
+    planetMesh.position.z = Math.cos(planetMesh.rotation.y) * planet.distance;
+
+    planetMesh.children.forEach((moonMesh: any, moonIndex: any) => {
+      const moon = planet.moons?.[moonIndex];
+
+      if (moon !== undefined) {
+        moonMesh.rotation.y += moon.speed;
+        moonMesh.position.x = Math.sin(moonMesh.rotation.y) * moon.distance;
+        moonMesh.position.z = Math.cos(moonMesh.rotation.y) * moon.distance;
+      }
+    });
+  });
+};
+
+export { sun, planets, createPlanets, animatePlanets };
