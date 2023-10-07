@@ -9,34 +9,13 @@ const earthTexture = textureLoader.load("/textures/2k_earth_daymap.jpg");
 const marsTexture = textureLoader.load("/textures/2k_mars.jpg");
 const moonTexture = textureLoader.load("/textures/2k_moon.jpg");
 
-const sunMaterial = new THREE.MeshBasicMaterial({
-  map: sunTexture,
-});
-const mercuryMaterial = new THREE.MeshStandardMaterial({
-  map: mercuryTexture,
-});
-const venusMaterial = new THREE.MeshStandardMaterial({
-  map: venusTexture,
-});
-const earthMaterial = new THREE.MeshStandardMaterial({
-  map: earthTexture,
-});
-const marsMaterial = new THREE.MeshStandardMaterial({
-  map: marsTexture,
-});
-const moonMaterial = new THREE.MeshStandardMaterial({
-  map: moonTexture,
-});
-
-const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
-
 const planets = [
   {
     name: "Sun",
     radius: 5,
     distance: 0,
     speed: 0,
-    material: sunMaterial,
+    material: new THREE.MeshBasicMaterial({ map: sunTexture }),
     moons: [],
   },
   {
@@ -44,7 +23,7 @@ const planets = [
     radius: 0.5,
     distance: 10,
     speed: 0.01,
-    material: mercuryMaterial,
+    material: new THREE.MeshStandardMaterial({ map: mercuryTexture }),
     moons: [],
   },
   {
@@ -52,7 +31,7 @@ const planets = [
     radius: 0.8,
     distance: 15,
     speed: 0.007,
-    material: venusMaterial,
+    material: new THREE.MeshStandardMaterial({ map: venusTexture }),
     moons: [],
   },
   {
@@ -60,14 +39,14 @@ const planets = [
     radius: 1,
     distance: 20,
     speed: 0.005,
-    material: earthMaterial,
+    material: new THREE.MeshStandardMaterial({ map: earthTexture }),
     moons: [
       {
         name: "Moon",
         radius: 0.3,
         distance: 3,
         speed: 0.015,
-        material: moonMaterial,
+        material: new THREE.MeshStandardMaterial({ map: moonTexture }),
       },
     ],
   },
@@ -76,21 +55,21 @@ const planets = [
     radius: 0.7,
     distance: 25,
     speed: 0.003,
-    material: marsMaterial,
+    material: new THREE.MeshStandardMaterial({ map: marsTexture }),
     moons: [
       {
         name: "Phobos",
         radius: 0.1,
         distance: 2,
         speed: 0.02,
-        material: moonMaterial,
+        material: new THREE.MeshStandardMaterial({ map: moonTexture }),
       },
       {
         name: "Deimos",
         radius: 0.2,
         distance: 3,
         speed: 0.015,
-        material: moonMaterial,
+        material: new THREE.MeshStandardMaterial({ map: moonTexture }),
       },
     ],
   },
@@ -104,7 +83,8 @@ const createPlanets = () => {
 };
 
 const createPlanet = (planet: any) => {
-  const planetMesh = new THREE.Mesh(sphereGeometry, planet.material);
+  const geometry = new THREE.SphereGeometry(1, 32, 32);
+  const planetMesh = new THREE.Mesh(geometry, planet.material);
   planetMesh.scale.setScalar(planet.radius);
   planetMesh.position.x = planet.distance;
 
