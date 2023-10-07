@@ -1,29 +1,19 @@
 import * as THREE from 'three';
 
-const textureLoader = new THREE.TextureLoader();
-
-const sunTexture = textureLoader.load("/textures/2k_sun.jpg");
-const mercuryTexture = textureLoader.load("/textures/2k_mercury.jpg");
-const venusTexture = textureLoader.load("/textures/2k_venus_surface.jpg");
-const earthTexture = textureLoader.load("/textures/2k_earth_daymap.jpg");
-const marsTexture = textureLoader.load("/textures/2k_mars.jpg");
-const moonTexture = textureLoader.load("/textures/2k_moon.jpg");
-
 const planets = [
   {
     name: "Sun",
     radius: 5,
     distance: 0,
     speed: 0,
-    material: new THREE.MeshBasicMaterial({ map: sunTexture }),
-    moons: [],
+    textureFilePath: '/textures/2k_sun.jpg',
   },
   {
     name: "Mercury",
     radius: 0.5,
     distance: 10,
     speed: 0.01,
-    material: new THREE.MeshStandardMaterial({ map: mercuryTexture }),
+    textureFilePath: '/textures/2k_mercury.jpg',
     moons: [],
   },
   {
@@ -31,7 +21,7 @@ const planets = [
     radius: 0.8,
     distance: 15,
     speed: 0.007,
-    material: new THREE.MeshStandardMaterial({ map: venusTexture }),
+    textureFilePath: '/textures/2k_venus_surface.jpg',
     moons: [],
   },
   {
@@ -39,14 +29,14 @@ const planets = [
     radius: 1,
     distance: 20,
     speed: 0.005,
-    material: new THREE.MeshStandardMaterial({ map: earthTexture }),
+    textureFilePath: '/textures/2k_earth_daymap.jpg',
     moons: [
       {
         name: "Moon",
         radius: 0.3,
         distance: 3,
         speed: 0.015,
-        material: new THREE.MeshStandardMaterial({ map: moonTexture }),
+        textureFilePath: '/textures/2k_moon.jpg',
       },
     ],
   },
@@ -55,21 +45,21 @@ const planets = [
     radius: 0.7,
     distance: 25,
     speed: 0.003,
-    material: new THREE.MeshStandardMaterial({ map: marsTexture }),
+    textureFilePath: '/textures/2k_mars.jpg',
     moons: [
       {
         name: "Phobos",
         radius: 0.1,
         distance: 2,
         speed: 0.02,
-        material: new THREE.MeshStandardMaterial({ map: moonTexture }),
+        textureFilePath: '/textures/2k_moon.jpg',
       },
       {
         name: "Deimos",
         radius: 0.2,
         distance: 3,
         speed: 0.015,
-        material: new THREE.MeshStandardMaterial({ map: moonTexture }),
+        textureFilePath: '/textures/2k_moon.jpg',
       },
     ],
   },
@@ -77,20 +67,23 @@ const planets = [
 
 let planetMeshes: any[] = [];
 
-const createPlanets = () => {
-  planetMeshes = planets.map(planet => createPlanet(planet));
-  return planetMeshes;
+export const initialize = () => {
+  planetMeshes = planets.map(planet => createPlanetMesh(planet));
 };
 
-const createPlanet = (planet: any) => {
+const createPlanetMesh = (planet: any) => {
   const geometry = new THREE.SphereGeometry(1, 32, 32);
-  const planetMesh = new THREE.Mesh(geometry, planet.material);
+  const textureLoader = new THREE.TextureLoader();
+  const texture = textureLoader.load(planet.textureFilePath);
+  const material = createMaterial(planet, texture);
+  const planetMesh = new THREE.Mesh(geometry, material);
+
   planetMesh.scale.setScalar(planet.radius);
   planetMesh.position.x = planet.distance;
 
   if (planet.moons !== undefined) {
     planet.moons.forEach((moon: any) => {
-      const moonMesh = createPlanet(moon);
+      const moonMesh = createPlanetMesh(moon);
       planetMesh.add(moonMesh);
     });
   }
@@ -98,7 +91,18 @@ const createPlanet = (planet: any) => {
   return planetMesh;
 };
 
-const animateAll = () => {
+const createMaterial = (planet: any, texture: THREE.Texture) => {
+  if (planet.name === 'Sun')
+    return new THREE.MeshBasicMaterial({ map: texture });
+  else
+    return new THREE.MeshStandardMaterial({ map: texture });
+};
+
+export const get = () => {
+  return planetMeshes;
+};
+
+export const animate = () => {
   planetMeshes.forEach((planetMesh, planetIndex) => {
     const planet = planets[planetIndex];
     planetMesh.rotation.y += planet.speed;
@@ -107,7 +111,6 @@ const animateAll = () => {
 
     planetMesh.children.forEach((moonMesh: any, moonIndex: any) => {
       const moon = planet.moons?.[moonIndex];
-
       if (moon !== undefined) {
         moonMesh.rotation.y += moon.speed;
         moonMesh.position.x = Math.sin(moonMesh.rotation.y) * moon.distance;
@@ -116,5 +119,3 @@ const animateAll = () => {
     });
   });
 };
-
-export { planets, createPlanets, animateAll };

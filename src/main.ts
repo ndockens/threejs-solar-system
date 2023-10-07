@@ -3,13 +3,14 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import * as Background from './background';
 import { camera } from './camera';
 import * as Lights from './lights';
-import * as Planets from './objects';
+import * as Planets from './planets';
 
 const scene = new THREE.Scene();
 
 scene.background = Background.backgroundCubeMap;
 
-let planets = Planets.createPlanets();
+Planets.initialize();
+let planets = Planets.get();
 scene.add(...planets);
 
 scene.add(Lights.ambientLight);
@@ -36,7 +37,7 @@ const addWindowResizeListener = () => {
 };
 
 const renderloop = () => {
-  Planets.animateAll();
+  Planets.animate();
   controls.update();
   renderer.render(scene, camera);
   window.requestAnimationFrame(renderloop);
